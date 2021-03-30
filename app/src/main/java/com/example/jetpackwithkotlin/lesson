@@ -1,0 +1,125 @@
+> Kotlin
+Data class
+ 1. always use val in class object
+ 2. getter function in kotlin:
+    val something:String
+        get() = "something"
+ 3. if want to pass object to another fragment need to make class parcelable
+    @Parcelize data class ... : Parcelable
+Recyclerview
+ 1. should extends ListAdapter not Recyclerview.Adapter when working with reactive data source
+ (when get new whole list) we don't get single item. listadapter handle it better
+ 2. adapterclass : ListAdapter<Task,ClassViewHolder>()
+    class TaskViewHolder(
+        private val binding: ItemTaskBinding
+    ) : RecyclerView.ViewHolder(binding.root){
+        fun bind(task:Task){
+        binding.apply{} or binding.id
+    }
+
+ViewBinding
+    val binding = FragmentA.bind(view)
+    binding.apply{}
+
+ViewModel:
+    1.need dao or repo instance in param
+    2.val task = taskdao.getData().asLiveData()
+        -> using FLow coz it more flexible has differnt operator that can switch thread
+        and don't lost any value coz it is a whole stream
+        -> livedata has benifit with lifecycle. when fragment become inactive livedata
+        will auto detect this and complete step dispatching event so we don't get memeory leak
+    3. when change data of get method
+        val search = MutableStateFlow("")
+        private val tasksFlow = search.flatMapLatest{
+            taskDao.getTask(it)
+        }
+        val tasks = tasksFLow.asLiveData()
+    4. flatMapLatest can use with combine if need to depend on differnt variable
+
+    5. combind methos
+        val taskFlow = combine(search,var2){lamda -> return Triple() if want to return multiple}
+        .flatMapLatest( it.first,.... )
+        or
+        .flatMapLatest( (var1,var2)-> )
+
+
+search view ext (ViewExt)
+    inline fun SearchView.onQueryTextChanged(crossinline listener:(string)->Unit){
+        this.setOnQueryTextListener(object: SearchView.OnQueryTextListener{
+
+        })
+    }
+JetPack Datastore
+    1.
+    2.
+ 3. ListAdapter need DiffUtil.ItemCallback<Task>()
+ 4. onCreateView..
+        val bnidng = ItemTaskBinding.inflate(Layout...)
+           return TaskViewHodler(binding)
+ 5. onBindViewHOlder
+    val current =getItem(position)
+    holder.bind(current)
+
+
+> Room
+ 1. Entity:
+    @Entity(tableName) data class .. (@PrimaryKey() val id:Int)
+
+> Navigation Component
+ Def: is like intent but handle transection it self make it easier to nagiveate betweeen fragment
+  and recommend is create only single Activty for whole app and use fragment
+ 1. first we need navGrahp
+ 2. fragment need class & layout to reconize by navgraph
+ 3. to create fragment class need to extends Fragment(R.layout.id)
+ 4. to have preview we need tools:context="package.to.fragment" in fragment parent layout
+ 5. go to main activity add FragemntContainerView (navhostfragment) and it need id to work
+
+> Room
+ 1. create Dao interface with function (suspend)
+    @Insert(onConflict=OnConflictStrategy.REPLACE) suspend fun, ...
+    @Query("") fun get():
+ 2. create abstract DB Class extends RoomDatabase() and use anotation @Database
+        create abstract function return type Dao Interface
+ 3. when create object db(should be singleton coz only create once)
+       Room.databaseBuilder(context,DB::class.java,"dbname")
+            .fallbackToDestructiveMigration().build()
+ 4. when create instance dao:
+        Dao d = db .taskDao();
+ 5. when want to create initialize data
+     Room.databaseBuilder(context,DB::class.java,"dbname")
+            .fallbackToDestructiveMigration()
+            .addCallback()
+            .build()
+
+> Flow
+ 1. suspend : way let function can switch to differnt thread
+ 2. type Flow<List<Task>> : represent async stream of data,can automatically receive new value and it
+ async by default (suspend is happend inside the flow we don't need suspend fun)
+ 3. suspend only use in coutine scope
+    -create coutine scope:
+        CoroutineScope(SupervisorJob())
+        co: CoroutineScope
+        co.lunch{}
+
+> DI
+Def: mean class that use Other class should not response for create this class obj or search for them
+ 1. create Object Class: AppModule and anotate with @Module. it is a place we tell dagger
+ how to create dependency we need.
+ 2. create function with anotate @Provides. @provide and @Inject contructor is the same.
+ it tell dagger how to create instance of class and pass nessessary object
+ 3. tell dagger scope by @InstallIn(ApplicationComponent::class)
+ 4. if meet circle inject we need to use Provider<Type> we can get dependency lazily as
+ long as we call .get()
+ 5.* in fragemnt and activity work differnt.
+ @AndroidEntryPoint
+ class FragmentA: Fragment(..) {
+    viewModel: ClassViewModel by viewModel()
+ }
+
+ 6. if want to create our own Annotaion:
+     @Retention(AnnotationRetention.RUNTIME)
+     @Qualifier
+     annotation class ApplicationScope
+     -> @ApplicationScope
+
+ 7. to activate Dagger we need to create application class and anotate with @HiltAndroidApp

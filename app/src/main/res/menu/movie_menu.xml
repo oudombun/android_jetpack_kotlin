@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_search"
+        android:title="search"
+        android:icon="@drawable/ic_baseline_search_24"
+        app:showAsAction="always"
+        app:actionViewClass="androidx.appcompat.widget.SearchView" />
+    <item
+        android:icon="@drawable/ic_baseline_sort_24"
+        android:title="sort"
+        app:showAsAction="always">
+        <menu >
+            <item android:id="@+id/sort_name"
+                android:title="Sort By name"/>
+            <item android:id="@+id/sort_dame"
+                android:title="Sort By Date"/>
+        </menu>
+    </item>
+    <item android:id="@+id/menu_more"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_baseline_more_vert_24"
+        android:title="more">
+        <menu>
+            <item android:id="@+id/hide"
+                app:showAsAction="never"
+                android:checkable="true"
+                android:title="Hide Watched"/>
+            <item android:id="@+id/delete"
+                app:showAsAction="never"
+                android:title="delete all"/>
+        </menu>
+    </item>
+</menu>
