@@ -18,6 +18,7 @@ class MovieViewModel @ViewModelInject constructor(
     val sort = MutableStateFlow(SortOrder.BY_NAME)
 
     val hide_watched = MutableStateFlow(false)
+    
 
     private val moviesFlow = combine(
         search,sort,hide_watched) {

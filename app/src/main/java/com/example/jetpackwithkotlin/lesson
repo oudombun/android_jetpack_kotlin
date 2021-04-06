@@ -50,8 +50,14 @@ search view ext (ViewExt)
         })
     }
 JetPack Datastore
-    1.
-    2.
+    1. create PreferenceManager (context:Context) (add singleton and inject)
+    2. create val datastore= context.createDataStore("name")
+    3. val preFlow = datastore.data.map{ pref->
+                val sortOrder= SortOrder.valueOf(prefernece[PreferenceKey.SORT_ORDER] ?... 
+                    }
+    4. private object PreferenceKeys{
+        val SORT_ORDER = preferneceKey<String>("sort_order")
+    }
  3. ListAdapter need DiffUtil.ItemCallback<Task>()
  4. onCreateView..
         val bnidng = ItemTaskBinding.inflate(Layout...)
